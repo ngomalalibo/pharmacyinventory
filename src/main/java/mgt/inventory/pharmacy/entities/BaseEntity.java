@@ -9,6 +9,7 @@ import org.mongodb.morphia.annotations.PrePersist;
 
 import mgt.inventory.pharmacy.database.MongoDB;
 
+//Abstract class is the data service layer that persists data to the DB along with auditing details
 public abstract class BaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -17,7 +18,13 @@ public abstract class BaseEntity implements Serializable {
 	private ObjectId id;
 	private LocalDateTime createdDate;
 	private LocalDateTime modifiedDate;
-
+	private String createdBy;
+	
+	public String getCreatedBy()
+	{
+		return createdBy;
+	}
+	
 	public LocalDateTime getCreatedDate() {
 		return createdDate;
 	}
@@ -49,6 +56,7 @@ public abstract class BaseEntity implements Serializable {
 		if (createdDate == null)
 			createdDate = LocalDateTime.now();
 		modifiedDate = LocalDateTime.now();
+		createdBy = "Mrs Mercy";
 	}
 
 	public abstract String toString();

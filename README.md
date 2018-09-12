@@ -4,7 +4,7 @@ Data Model
 
 Inventory
 
-Item
+Product
 =======
 ProductCode (MED-ID-Date)
 Name (Item A)
