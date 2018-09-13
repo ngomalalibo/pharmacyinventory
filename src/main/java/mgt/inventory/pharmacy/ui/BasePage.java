@@ -7,8 +7,10 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.server.VaadinServletConfiguration;
 
 @Viewport("user-scalable=no, initial-scale=1.0, shrink-to-fit=no")
+//@VaadinServletConfiguration(productionMode = true)
 public class BasePage extends FlexLayout implements Serializable, RouterLayout {
 
 	private static final long serialVersionUID = 1L;

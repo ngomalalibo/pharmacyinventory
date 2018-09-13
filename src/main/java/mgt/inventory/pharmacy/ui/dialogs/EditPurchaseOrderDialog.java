@@ -20,12 +20,17 @@ import mgt.inventory.pharmacy.database.MongoDB;
 import mgt.inventory.pharmacy.entities.Employee;
 import mgt.inventory.pharmacy.entities.Product;
 import mgt.inventory.pharmacy.entities.PurchaseOrder;
+import mgt.inventory.pharmacy.ui.DoubleNumberTextField;
+import mgt.inventory.pharmacy.ui.NumberTextField;
 
 
 public class EditPurchaseOrderDialog extends MDialog
 {
     
     private static final long serialVersionUID = -4136556525370459308L;
+    private boolean check;
+    
+    
     
     public EditPurchaseOrderDialog(final PurchaseOrder purchaseBean, DialogAction action, OnAction onaction)
     {
@@ -83,11 +88,14 @@ public class EditPurchaseOrderDialog extends MDialog
         binder.forField(purchaseBy).asRequired("Please select employee making purchase")
                 .bind("purchaseBy");
         
-        TextField quantity = new TextField("Quantity");
+        /*TextField quantity = new TextField("Quantity");
         quantity.setPattern("[0-9]*");
         quantity.setPreventInvalidInput(true);
         binder.forField(quantity).withConverter(new StringToIntegerConverter("Quantity must be a number"))
-                .asRequired("Please enter quantity purchased").bind(PurchaseOrder::getQuantity, PurchaseOrder::setQuantity);
+                .asRequired("Please enter quantity purchased").bind(PurchaseOrder::getQuantity, PurchaseOrder::setQuantity);*/
+    
+        NumberTextField quantity = new NumberTextField("Quantity");
+        binder.forField(quantity).asRequired("Please enter quantity purchased").bind("quantity");
         
         DatePicker purchaseDate = new DatePicker("Purchase Date");
         binder.forField(purchaseDate).bind("purchaseDate");
@@ -96,7 +104,7 @@ public class EditPurchaseOrderDialog extends MDialog
         supplier.setPlaceholder("XXX-XXXXX");
         binder.forField(supplier).asRequired("Please enter supplier").bind("supplierId");
     
-        TextField unitPrice = new TextField("Unit Price");
+        DoubleNumberTextField unitPrice = new DoubleNumberTextField("Unit Price");
         unitPrice.setPlaceholder("XXX-XXXXX");
         binder.forField(unitPrice).asRequired("Please enter unit Price purchased").bind("unitPrice");
         
@@ -120,6 +128,9 @@ public class EditPurchaseOrderDialog extends MDialog
                 {
                     if (binder.writeBeanIfValid(purchaseBean))
                     {
+                        
+                            addStockQuantity(purchaseBean.getProductCode(), purchaseBean.getQuantity());
+                        System.out.println("Purchase Order Recorded");
                         onaction.action(purchaseBean);
                         close();
                     }
@@ -145,6 +156,12 @@ public class EditPurchaseOrderDialog extends MDialog
             setCloseOnEsc(false);
             setCloseOnOutsideClick(false);
         }
+    }
+    
+    private void addStockQuantity(String productCode, Integer quantity)
+    {
+        MongoDB.addNewStock(productCode, quantity);
+        System.out.println("Purchase Order Stock Updated");
     }
     
     public interface OnAction

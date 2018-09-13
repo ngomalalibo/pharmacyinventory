@@ -20,6 +20,7 @@ import mgt.inventory.pharmacy.database.MongoDB.ProductStockTaking;
 import mgt.inventory.pharmacy.entities.Employee;
 import mgt.inventory.pharmacy.entities.Product;
 import mgt.inventory.pharmacy.entities.StockTaking;
+import mgt.inventory.pharmacy.ui.NumberTextField;
 
 public class EditProductStockTakingDialog extends MDialog
 {
@@ -57,22 +58,18 @@ public class EditProductStockTakingDialog extends MDialog
         productCat.setValue(psbean.product.getProductCategory());
         
         TextField manufacturer = new TextField("Product Manufacturer");
-        binder.forField(manufacturer).asRequired("Please enter a manufacturer").bind("productManufacturer");
+        manufacturer.setValue(psbean.product.getProductManufacturer());
+        //binder.forField(manufacturer).asRequired("Please enter a manufacturer").bind("productManufacturer");
         manufacturer.setEnabled(false);
         
-        TextField quantityInStock = new TextField("QuantityInStock");
+        NumberTextField quantityInStock = new NumberTextField("QuantityInStock");
         binder.forField(quantityInStock).asRequired("Please quantity").bind("quantityInStock");
-        
-        if (action == DialogAction.NEW || action == DialogAction.EDIT)
-        {
-            psbean.stockTaking.setStockTakenDate(LocalDate.now());
-        }
         
         ComboBox<Employee> stockTakenBy = new ComboBox<>("Stock Taken By", MongoDB.getEmployeeCombo());
         stockTakenBy.setItemLabelGenerator(emp -> emp.getFullName());
         binder.forField(stockTakenBy).asRequired("Please select stock takers Info").bind("stockTakenBy");
-        
-        TextField reorderLevel = new TextField("Reorder Level");
+    
+        NumberTextField reorderLevel = new NumberTextField("Reorder Level");
         binder.forField(reorderLevel).asRequired("Enter reorder Level").bind("reorderLevel");
         
         DatePicker discDate = new DatePicker("Discontinue Date");

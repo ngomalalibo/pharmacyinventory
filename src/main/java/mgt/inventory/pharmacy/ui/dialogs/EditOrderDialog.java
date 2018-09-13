@@ -13,6 +13,9 @@ import mgt.inventory.pharmacy.database.MongoDB;
 import mgt.inventory.pharmacy.entities.Customer;
 import mgt.inventory.pharmacy.entities.Order;
 import mgt.inventory.pharmacy.entities.Product;
+import mgt.inventory.pharmacy.entities.StockTaking;
+import mgt.inventory.pharmacy.sms.SendSMS;
+import mgt.inventory.pharmacy.ui.NumberTextField;
 
 import java.util.HashMap;
 
@@ -80,10 +83,14 @@ public class EditOrderDialog extends MDialog {
         });
         binder.forField(productCode).asRequired("Please select a Product")
                 .bind("productCode");
-        
-        TextField quantity = new TextField("Quantity");
-        quantity.setPlaceholder("1");
+    
+    
+        NumberTextField quantity = new NumberTextField("Quantity");
         binder.forField(quantity).asRequired("Please enter Quantity").bind("quantity");
+        
+        /*TextField quantity = new TextField("Quantity");
+        quantity.setPlaceholder("1");
+        binder.forField(quantity).asRequired("Please enter Quantity").bind("quantity");*/
     
         TextField unitSellingPrice = new TextField("Unit Selling Price");
         unitSellingPrice.setPlaceholder("1");
@@ -108,6 +115,11 @@ public class EditOrderDialog extends MDialog {
             actionbtn.addClickListener(e -> {
                 if (binder.validate().isOk()) {
                     if (binder.writeBeanIfValid(orderBean)) {
+                        if(checkAvailQuantity(orderBean.getProductCode(), orderBean.getQuantity()))
+                        {
+                            updateStockQuantity(orderBean.getProductCode(), orderBean.getQuantity());
+                            //SendSMS.sendSms("+18509295655", "+2348098423619", "Thank you for your Patronage. We look forward to seeing you again. Have a great day");
+                        }
                         onaction.action(orderBean);
                         close();
                     }
@@ -131,6 +143,27 @@ public class EditOrderDialog extends MDialog {
             setCloseOnEsc(false);
             setCloseOnOutsideClick(false);
         }
+    }
+    
+    private void updateStockQuantity(String productCode, Integer orderQuantity)
+    {
+        StockTaking st = MongoDB.getLatestStockTaken(productCode);
+        Integer updateQuantity= st.getQuantityInStock() - orderQuantity;
+        
+        MongoDB.updateQuantityStock(st.getId(), updateQuantity);
+        
+        
+    }
+    
+    private boolean checkAvailQuantity(String productCode, Integer orderQuantity)
+    {
+        boolean check = false;
+        StockTaking st = MongoDB.getLatestStockTaken(productCode);
+        if(st.getQuantityInStock()>=orderQuantity)
+        {
+            check = true;
+        }
+            return check;
     }
     
     public interface OnAction {

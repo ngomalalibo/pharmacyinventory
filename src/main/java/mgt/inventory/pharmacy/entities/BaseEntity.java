@@ -50,7 +50,7 @@ public abstract class BaseEntity implements Serializable {
 		MongoDB.getDS().delete(entity);
 		return entity.getId();
 	}
-
+	
 	@PrePersist
 	private void prepersist() {
 		if (createdDate == null)

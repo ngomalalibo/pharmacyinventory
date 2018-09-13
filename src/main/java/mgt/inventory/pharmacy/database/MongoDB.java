@@ -2,7 +2,12 @@ package mgt.inventory.pharmacy.database;
 
 import java.util.*;
 
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 import mgt.inventory.pharmacy.entities.*;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.slf4j.Logger;
@@ -138,6 +143,57 @@ public class MongoDB {
 	
 	public static List<StockTaking> getStockTaking(String productCode) {
 		return getDS().createQuery(StockTaking.class).filter("productCode", productCode).order("createdDate").asList();
+	}
+	
+	public static StockTaking getLatestStockTaken(String productCode) {
+		return getDS().createQuery(StockTaking.class).filter("productCode", productCode).order("createdDate").get();
+	}
+	
+	public static void updateQuantityStock(ObjectId stockId, Integer updateQuantity)
+	{
+		//update stockTaking set quantity = updateQuantity where productCode=productCode and max(createdDate)
+		Map<String, Object> map = new HashMap<>();
+		
+		map.put("$eq", stockId);
+		//map.put("cno", 1);
+		
+		
+		Bson query = new Document("Id",
+				new Document(map));
+		
+		Bson update = new Document("$set",
+				new Document("quantity", updateQuantity));
+		
+		System.out.println("before update");
+		findAndPrint(getDb().getCollection("stockTaking"));
+		
+		getDb().getCollection("stockTaking").findOneAndUpdate(query, update);
+		
+		System.out.println("after update of quantity");
+		findAndPrint(getDb().getCollection("stockTaking"));
+	}
+	
+	public static void addNewStock(String productCode, Integer quantity)
+	{
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		map.put("$eq", productCode);
+		//map.put("cno", 1);
+		
+		Bson query = new Document("productCode",
+				new Document(map));
+		Bson update = new Document("$inc",
+				new Document("quantity", quantity));
+		
+		getDb().getCollection("purchaseOrder").findOneAndUpdate(query, update);
+	}
+	
+	private static void findAndPrint(MongoCollection<Document> coll) {
+		FindIterable<Document> cursor = coll.find();
+		
+		for (Document d : cursor)
+			System.out.println(d);
 	}
 	
 	public static class ProductStockTaking {
