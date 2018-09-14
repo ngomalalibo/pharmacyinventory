@@ -63,7 +63,7 @@ public class PurchaseOrderCRUDPage extends FlexLayout {
             return pcode;
         }).setHeader("Product Code");
         
-        grid.addColumn(PurchaseOrder::getPurchaseBy).setHeader("Purchase Order Id");
+        grid.addColumn(po -> po.getPurchaseBy().getFullName()).setHeader("Purchase Order Id");
         grid.addColumn(PurchaseOrder::getProductCode).setHeader("Product");
         grid.addColumn(PurchaseOrder::getQuantity).setHeader("Quantity in Stock");
         grid.addColumn(PurchaseOrder::getPurchaseDate).setHeader("Purchase Date");

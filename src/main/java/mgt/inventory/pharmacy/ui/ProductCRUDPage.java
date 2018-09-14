@@ -54,7 +54,7 @@ public class ProductCRUDPage extends FlexLayout {
 		createProduct.getElement().setAttribute("theme", "small primary");
 		createProduct.addClickListener(click -> newProductView());
 		add(new Div(createProduct));
-		
+
 		grid.setDataProvider(new ListDataProvider<>(allProductStock));
 		grid.setSelectionMode(SelectionMode.NONE);
 		grid.addComponentColumn(ps -> {
@@ -65,15 +65,17 @@ public class ProductCRUDPage extends FlexLayout {
 			return pcode;
 		}).setHeader("Product Code");
 
-		grid.addColumn(ps -> ps.product.getProductCode()).setHeader("Product Code");
+		// grid.addColumn(ps -> ps.product.getProductCode()).setHeader("Product Code");
 		grid.addColumn(ps -> ps.product.getProductName()).setHeader("Product Name");
 		grid.addColumn(ps -> ps.product.getProductCategory()).setHeader("Product Category");
 		grid.addColumn(ps -> ps.product.getProductManufacturer()).setHeader("Manufacturer");
 		grid.addColumn(ps -> ps.product.getProductManufactureReleaseDate()).setHeader("Release Date");
-		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getQuantityInStock().toString():"").setHeader("Quanitity Available");
-		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getReorderLevel():"").setHeader("Reorder Level");
-		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getDiscontinueDate():"").setHeader("Discontinue Date");
-		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getStockTakenBy():"").setHeader("Taken By");
+		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getQuantityInStock().toString() : "")
+				.setHeader("Quanitity Available");
+		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getReorderLevel() : "").setHeader("Reorder Level");
+		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getDiscontinueDate() : "")
+				.setHeader("Discontinue Date");
+		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getStockTakenBy() : "").setHeader("Taken By");
 		grid.addColumn(ps -> ps.product.getCreatedDate().format(DateTimeFormatter.ISO_DATE)).setHeader("Created");
 
 		grid.addComponentColumn(ps -> {
@@ -84,12 +86,12 @@ public class ProductCRUDPage extends FlexLayout {
 			edit.getElement().setAttribute("theme", "small icon");
 			edit.getStyle().set("marginRight", "0.4em");
 			edit.addClickListener(click -> editProductView(ps.product));
-			
+
 			Button editStock = new Button(new IronIcon("lumo", "edit"));
 			editStock.getElement().setAttribute("theme", "small icon");
 			editStock.getStyle().set("marginRight", "0.4em");
 			editStock.addClickListener(click -> editStockView(ps));
-			
+
 			Button delete = new Button(new IronIcon("lumo", "cross"));
 			delete.getElement().setAttribute("theme", "small icon error");
 			delete.addClickListener(click -> deleteProductView(ps.product));
@@ -105,7 +107,7 @@ public class ProductCRUDPage extends FlexLayout {
 	private void openProductView(Product product) {
 		new EditProductDialog(product, DialogAction.VIEW, i -> refreshDataTable()).open();
 	}
-	
+
 	private void openStockView(ProductStockTaking ps) {
 		new EditProductStockTakingDialog(ps, DialogAction.VIEW, i -> refreshDataTable()).open();
 	}
@@ -116,7 +118,7 @@ public class ProductCRUDPage extends FlexLayout {
 			refreshDataTable();
 		}).open();
 	}
-	
+
 	private void editStockView(ProductStockTaking ps) {
 		new EditProductStockTakingDialog(ps, DialogAction.EDIT, i -> {
 			i.persist(i);
@@ -137,7 +139,7 @@ public class ProductCRUDPage extends FlexLayout {
 			refreshDataTable();
 		}).open();
 	}
-	
+
 	private void newStockView() {
 		ProductStockTaking ps = new ProductStockTaking();
 		new EditProductStockTakingDialog(ps, DialogAction.NEW, i -> {

@@ -71,7 +71,7 @@ public class MongoDB {
 		if (!cols.contains("stocks")) {
 			getDb().createCollection("stocks");
 		}
-		//Renamed from reorders to products
+		// Renamed from reorders to products
 		if (!cols.contains("purchases")) {
 			getDb().createCollection("purchases");
 		}
@@ -90,136 +90,144 @@ public class MongoDB {
 	public static List<Product> getProducts() {
 		return getDS().createQuery(Product.class).asList();
 	}
-	
+
 	public static List<Customer> getCustomers() {
 		return getDS().createQuery(Customer.class).asList();
 	}
-	
+
 	public static List<Employee> getEmployees() {
 		return getDS().createQuery(Employee.class).asList();
 	}
-	
+
 	public static List<Order> getOrders() {
 		return getDS().createQuery(Order.class).asList();
 	}
-	
+
 	public static List<PurchaseOrder> getPurchaseOrders() {
 		return getDS().createQuery(PurchaseOrder.class).asList();
 	}
-	
-	//db.users.find({}, { _id: 0, email: 1 })
-	
-	//Returns a single column from a collection
-	/*Query q = getDS().createQuery(Employee.class);
-		return q.filter("productCode", Product.class).asList();*/
-		
+
+	// db.users.find({}, { _id: 0, email: 1 })
+
+	// Returns a single column from a collection
+	/*
+	 * Query q = getDS().createQuery(Employee.class); return q.filter("productCode",
+	 * Product.class).asList();
+	 */
+
 	public static List<Product> getProductCombo() {
 		return getDS().createQuery(Product.class).asList();
 	}
-	
-	/*public static HashMap<String, String> getProductCombo() {
-		List<Product> products = getDS().createQuery(Product.class).asList();
-		HashMap<String, String> productCombo = new HashMap<>();
-		for(Product product: products)
-		{
-			productCombo.put(product.getProductCode(), product.getProductName());
-		}
-		return productCombo;
-	}*/
-	
+
+	/*
+	 * public static HashMap<String, String> getProductCombo() { List<Product>
+	 * products = getDS().createQuery(Product.class).asList(); HashMap<String,
+	 * String> productCombo = new HashMap<>(); for(Product product: products) {
+	 * productCombo.put(product.getProductCode(), product.getProductName()); }
+	 * return productCombo; }
+	 */
+
 	public static List<Employee> getEmployeeCombo() {
 		return getDS().createQuery(Employee.class).asList();
-		
+
 	}
-	
-	
+
 	public static Product getProduct(String productCode) {
 		return getDS().createQuery(Product.class).filter("productCode", productCode).get();
 	}
-	
+
 	public static List<StockTaking> getStockTaking() {
 		return getDS().createQuery(StockTaking.class).order("createdDate").asList();
 	}
-	
+
 	public static List<StockTaking> getStockTaking(String productCode) {
 		return getDS().createQuery(StockTaking.class).filter("productCode", productCode).order("createdDate").asList();
 	}
-	
+
 	public static StockTaking getLatestStockTaken(String productCode) {
-		return getDS().createQuery(StockTaking.class).filter("productCode", productCode).order("createdDate").get();
+		return getDS().createQuery(StockTaking.class).filter("productCode", productCode).get();
 	}
-	
-	public static void updateQuantityStock(ObjectId stockId, Integer updateQuantity)
-	{
-		//update stockTaking set quantity = updateQuantity where productCode=productCode and max(createdDate)
+
+	public static void updateQuantityStock(ObjectId stockId, Integer updateQuantity) {
+		// update stockTaking set quantity = updateQuantity where
+		// productCode=productCode and max(createdDate)
 		Map<String, Object> map = new HashMap<>();
-		
+
 		map.put("$eq", stockId);
-		//map.put("cno", 1);
-		
-		
-		Bson query = new Document("Id",
-				new Document(map));
-		
-		Bson update = new Document("$set",
-			new Document("quantity", updateQuantity));
-		
+		// map.put("cno", 1);
+
+		Bson query = new Document("Id", new Document(map));
+
+		Bson update = new Document("$set", new Document("quantity", updateQuantity));
+
 		System.out.println("before update");
 		findAndPrint(getDb().getCollection("stockTaking"));
-		
+
 		getDb().getCollection("stockTaking").findOneAndUpdate(query, update);
-		
+
 		System.out.println("after update of quantity");
 		findAndPrint(getDb().getCollection("stockTaking"));
 	}
-	
-	public static void addNewStock(String productCode, Integer quantity)
-	{
-		
+
+	public static void addNewStock(String productCode, Integer quantity) {
+
 		Map<String, Object> map = new HashMap<>();
-		
+
 		map.put("$eq", productCode);
-		//map.put("cno", 1);
-		
-		Bson query = new Document("productCode",
-				new Document(map));
-		Bson update = new Document("$inc",
-				new Document("quantity", quantity));
-		
+		// map.put("cno", 1);
+
+		Bson query = new Document("productCode", new Document(map));
+		Bson update = new Document("$inc", new Document("quantity", quantity));
+
 		getDb().getCollection("purchaseOrder").findOneAndUpdate(query, update);
 	}
-	
+
 	private static void findAndPrint(MongoCollection<Document> coll) {
 		FindIterable<Document> cursor = coll.find();
-		
+
 		for (Document d : cursor)
 			System.out.println(d);
 	}
-	
+
 	public static class ProductStockTaking {
 		public Product product;
 		public StockTaking stockTaking;
 	}
-	
+
 	public static List<ProductStockTaking> getProductStock() {
 		List<Product> products = getProducts(); // all item
 		List<StockTaking> stockTaking = getStockTaking(); // all stock
-		//stock.sort((a, b) -> a.createdDate.compareTo(b.createdDate)); // sort by date ascending
-		
+		// stock.sort((a, b) -> a.createdDate.compareTo(b.createdDate)); // sort by date
+		// ascending
+
+		System.out.println("products.size " + products.size());
+		System.out.println("stockTaking.size " + stockTaking.size());
+
 		List<ProductStockTaking> productStockTaking = new ArrayList<>();
-		
+
 		for (int n = 0; n < products.size(); n++) {
 			ProductStockTaking stk = new ProductStockTaking();
 			stk.product = products.get(n);
-			
-			Optional<StockTaking> opt = stockTaking.stream().filter(sc -> sc.getProductCode().equals(stk.product.getProductCode())).findFirst();
-			
+
+			String spcode = stk.product.getProductCode();
+			System.out.println(spcode);
+
+			Optional<StockTaking> opt = stockTaking.stream().filter(sc -> {
+				String prodcode = sc.getProductCode();
+				System.out.println(">> = " + prodcode);
+				return spcode.equals(prodcode);
+			}).findFirst();
+
 			if (opt.isPresent())
 				stk.stockTaking = opt.get();
-			
+			else {
+				stk.stockTaking = new StockTaking();
+				stk.stockTaking.setQuantityInStock(0);
+			}
+
 			productStockTaking.add(stk);
 		}
-		
+
 		return productStockTaking;
 	}
 }
