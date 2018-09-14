@@ -19,8 +19,8 @@ public class Order extends BaseEntity
     private String orderId;
     private String productCode;
     private String customerId;
-    private Integer quantity;
-    private Integer unitSellingPrice;
+    private int quantity;
+    private double unitSellingPrice;
     private String receiptNo;
     private LocalDate orderDate;
     
@@ -41,12 +41,12 @@ public class Order extends BaseEntity
                 '}';
     }
     
-    public Integer getUnitSellingPrice()
+    public Double getUnitSellingPrice()
     {
         return unitSellingPrice;
     }
     
-    public void setUnitSellingPrice(Integer unitSellingPrice)
+    public void setUnitSellingPrice(Double unitSellingPrice)
     {
         this.unitSellingPrice = unitSellingPrice;
     }

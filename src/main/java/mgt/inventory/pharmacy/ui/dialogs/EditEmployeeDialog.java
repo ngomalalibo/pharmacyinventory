@@ -53,7 +53,7 @@ public class EditEmployeeDialog extends MDialog {
         binder.forField(phoneNo).asRequired("Please enter Employee Phone No").bind("phoneNo");
         
         TextField email = new TextField("Employee Email");
-        binder.forField(email).asRequired("Please enter Employee Email").bind("phoneNo");
+        binder.forField(email).asRequired("Please enter Employee Email").bind("email");
     
         TextField address = new TextField("Employee Address");
         binder.forField(address).asRequired("Please enter Employee Address").bind("address");

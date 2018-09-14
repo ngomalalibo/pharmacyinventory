@@ -162,7 +162,7 @@ public class MongoDB {
 				new Document(map));
 		
 		Bson update = new Document("$set",
-				new Document("quantity", updateQuantity));
+			new Document("quantity", updateQuantity));
 		
 		System.out.println("before update");
 		findAndPrint(getDb().getCollection("stockTaking"));

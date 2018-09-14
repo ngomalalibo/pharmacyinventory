@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
@@ -15,9 +16,12 @@ import mgt.inventory.pharmacy.entities.Order;
 import mgt.inventory.pharmacy.entities.Product;
 import mgt.inventory.pharmacy.entities.StockTaking;
 import mgt.inventory.pharmacy.sms.SendSMS;
+import mgt.inventory.pharmacy.ui.DoubleNumberTextField;
 import mgt.inventory.pharmacy.ui.NumberTextField;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 
 public class EditOrderDialog extends MDialog {
@@ -51,38 +55,27 @@ public class EditOrderDialog extends MDialog {
                 .withValidator(new StringLengthValidator("Please add a valid order Id", 4, 15)).bind("orderId");
         
         //Searchable ComboBox
-        ComboBox<Customer> customerId = new ComboBox<>("Customer", MongoDB.getCustomers());
+        List<Customer> allCustomers = MongoDB.getCustomers();
+        ComboBox<Customer> customerId = new ComboBox<>("Customer", allCustomers);
         customerId.setItemLabelGenerator(customer -> customer.getFullName());
-        customerId.addValueChangeListener(prod ->
-        {
-            if(prod!=null)
-            {
-                binder.getBean().setCustomerId(customerId.getValue().getCustomerId());
-            }
-            else
-            {
-                binder.getBean().setCustomerId(null);
-            }
-        });
-        binder.forField(customerId).asRequired("Please select a Customer")
-                .bind("customerId");
         
+        binder.forField(customerId).asRequired("Please select a Customer")
+                .bind(order -> {
+                 Optional<Customer> opt = allCustomers.stream().filter(alc -> alc.getCustomerId().equals(order.getCustomerId())).findFirst();
+                 return opt.isPresent()? opt.get() : null;
+                }, (order, customer) -> {if(customer!=null){order.setCustomerId(customer.getCustomerId());}else{order.setCustomerId(null);}});
+                
         //Searchable ComboBox for products
-        ComboBox<Product> productCode = new ComboBox<>("Product", MongoDB.getProductCombo());
+        List<Product> allproducts = MongoDB.getProductCombo();
+        ComboBox<Product> productCode = new ComboBox<>("Product", allproducts);
         productCode.setItemLabelGenerator(prod -> prod.getProductName());
-        productCode.addValueChangeListener(prod ->
-        {
-            if(prod!=null)
-            {
-                binder.getBean().setProductCode(prod.getValue().getProductCode());
-            }
-            else
-            {
-                binder.getBean().setProductCode(null);
-            }
-        });
+       
         binder.forField(productCode).asRequired("Please select a Product")
-                .bind("productCode");
+                .bind(order -> {
+                    Optional<Product> opt = allproducts.stream().filter(prd -> prd.getProductCode().equals(order.getProductCode())).findFirst();
+                    return opt.isPresent()? opt.get() : null;
+                }, (order, product)->
+                {if(product!=null){order.setProductCode(product.getProductCode());}else{order.setProductCode(null);}});
     
     
         NumberTextField quantity = new NumberTextField("Quantity");
@@ -92,8 +85,8 @@ public class EditOrderDialog extends MDialog {
         quantity.setPlaceholder("1");
         binder.forField(quantity).asRequired("Please enter Quantity").bind("quantity");*/
     
-        TextField unitSellingPrice = new TextField("Unit Selling Price");
-        unitSellingPrice.setPlaceholder("1");
+        DoubleNumberTextField unitSellingPrice = new DoubleNumberTextField("Unit Selling Price");
+        unitSellingPrice.setPrefixComponent(new Span("₦"));
         binder.forField(unitSellingPrice).asRequired("Please enter Unit Selling Price").bind("unitSellingPrice");
         
         TextField receiptNo = new TextField("Receipt No");
@@ -159,7 +152,8 @@ public class EditOrderDialog extends MDialog {
     {
         boolean check = false;
         StockTaking st = MongoDB.getLatestStockTaken(productCode);
-        if(st.getQuantityInStock()>=orderQuantity)
+        
+        if(st.getQuantityInStock() >= orderQuantity)
         {
             check = true;
         }

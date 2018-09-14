@@ -94,26 +94,26 @@ public class PurchaseOrderCRUDPage extends FlexLayout {
     }
     
     private void openOrderView(PurchaseOrder order) {
-        new EditPurchaseOrderDialog(order, DialogAction.VIEW, i -> refreshDataTable()).open();
+        new EditPurchaseOrderDialog(order, DialogAction.VIEW, () -> refreshDataTable()).open();
     }
     
     private void editOrderView(PurchaseOrder order) {
-        new EditPurchaseOrderDialog(order, DialogAction.EDIT, i -> {
-            i.persist(i);
+        new EditPurchaseOrderDialog(order, DialogAction.EDIT, () -> {
+            //i.persist(i);
             refreshDataTable();
         }).open();
     }
     
     private void deleteOrderView(PurchaseOrder order) {
-        new EditPurchaseOrderDialog(order, DialogAction.DELETE, i -> {
-            i.delete(i);
+        new EditPurchaseOrderDialog(order, DialogAction.DELETE, () -> {
+            //i.delete();
             refreshDataTable();
         }).open();
     }
     
     private void newOrderView() {
-        new EditPurchaseOrderDialog(new PurchaseOrder(), DialogAction.NEW, i -> {
-            i.persist(i);
+        new EditPurchaseOrderDialog(new PurchaseOrder(), DialogAction.NEW, () -> {
+            
             refreshDataTable();
         }).open();
     }

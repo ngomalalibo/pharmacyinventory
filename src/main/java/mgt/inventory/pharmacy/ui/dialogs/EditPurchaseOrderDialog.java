@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -12,6 +13,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
@@ -20,6 +22,7 @@ import mgt.inventory.pharmacy.database.MongoDB;
 import mgt.inventory.pharmacy.entities.Employee;
 import mgt.inventory.pharmacy.entities.Product;
 import mgt.inventory.pharmacy.entities.PurchaseOrder;
+import mgt.inventory.pharmacy.entities.StockTaking;
 import mgt.inventory.pharmacy.ui.DoubleNumberTextField;
 import mgt.inventory.pharmacy.ui.NumberTextField;
 
@@ -88,12 +91,6 @@ public class EditPurchaseOrderDialog extends MDialog
         binder.forField(purchaseBy).asRequired("Please select employee making purchase")
                 .bind("purchaseBy");
         
-        /*TextField quantity = new TextField("Quantity");
-        quantity.setPattern("[0-9]*");
-        quantity.setPreventInvalidInput(true);
-        binder.forField(quantity).withConverter(new StringToIntegerConverter("Quantity must be a number"))
-                .asRequired("Please enter quantity purchased").bind(PurchaseOrder::getQuantity, PurchaseOrder::setQuantity);*/
-    
         NumberTextField quantity = new NumberTextField("Quantity");
         binder.forField(quantity).asRequired("Please enter quantity purchased").bind("quantity");
         
@@ -124,17 +121,28 @@ public class EditPurchaseOrderDialog extends MDialog
             actionbtn.getElement().setAttribute("theme", "small primary");
             actionbtn.addClickListener(e ->
             {
-                if (binder.validate().isOk())
-                {
-                    if (binder.writeBeanIfValid(purchaseBean))
+                  
+                    if(binder.validate().isOk())
                     {
-                        
-                            addStockQuantity(purchaseBean.getProductCode(), purchaseBean.getQuantity());
-                        System.out.println("Purchase Order Recorded");
-                        onaction.action(purchaseBean);
-                        close();
+                        if (binder.writeBeanIfValid(purchaseBean))
+                        {
+                            StockTaking st = MongoDB.getLatestStockTaken(purchaseBean.getProductCode());
+                            st.setQuantityInStock(purchaseBean.getQuantity() + st.getQuantityInStock());
+                            //addStockQuantity(purchaseBean.getProductCode(), purchaseBean.getQuantity());
+                            System.out.println("Purchase Order Recorded");
+                            onaction.action();
+                            st.persist(st);
+                            purchaseBean.persist(purchaseBean);
+                            close();
+                        } else
+                        {
+                            new Notification("Bean NOT Valid", 2000).open();
+                            System.out.println("bean not valid");
+                        }
+                    }else {
+                        System.out.println("-> " + binder.validate().getBeanValidationErrors().stream().map(ve -> ve.getErrorMessage()).collect(Collectors.joining(",")));
+                        System.out.println("-> " + binder.getBean().toString());
                     }
-                }
             });
             
             if (action == DialogAction.DELETE)
@@ -145,7 +153,8 @@ public class EditPurchaseOrderDialog extends MDialog
                 deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Shipping Address?",
                         "Are you sure you want to delete this address?", DialogAction.DELETE, () ->
                 {
-                    onaction.action(purchaseBean);
+                    purchaseBean.delete(purchaseBean);
+                    onaction.action();
                     close();
                 }).open());
                 addActions(deletebtn);
@@ -166,7 +175,7 @@ public class EditPurchaseOrderDialog extends MDialog
     
     public interface OnAction
     {
-        void action(PurchaseOrder c);
+        void action();
     }
     
 }
