@@ -16,6 +16,7 @@ public class StockTaking extends BaseEntity
     
     private static final long serialVersionUID = 1L;
     
+    private String stockId;
     private Employee stockTakenBy;
     private LocalDate stockTakenDate;
     private String productCode;
@@ -98,5 +99,15 @@ public class StockTaking extends BaseEntity
                 ", reorderLevel=" + reorderLevel +
                 ", discontinueDate=" + discontinueDate +
                 '}';
+    }
+    
+    public String getStockId()
+    {
+        return stockId;
+    }
+    
+    public void setStockId(String stockId)
+    {
+        this.stockId = stockId;
     }
 }

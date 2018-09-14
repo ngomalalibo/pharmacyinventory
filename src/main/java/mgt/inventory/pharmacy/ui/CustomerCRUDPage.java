@@ -60,13 +60,13 @@ public class CustomerCRUDPage extends FlexLayout {
             pcode.setClassName("font-size-s");
             pcode.addClickListener(clk -> openCustomerView(customer));
             return pcode;
-        }).setHeader("Customer Id");
+        }).setHeader("Customer Id").setWidth("5em");
         
-        grid.addColumn(Customer::getFullName).setHeader("Full Name");
-        grid.addColumn(Customer::getEmail).setHeader("Email");
-        grid.addColumn(Customer::getPhoneNo).setHeader("Phone No");
-        grid.addColumn(Customer::getRemark).setHeader("Remark");
-        grid.addColumn(i -> i.getCreatedDate().format(DateTimeFormatter.ISO_DATE)).setHeader("Created");
+        grid.addColumn(Customer::getFullName).setHeader("Full Name").setWidth("10em");
+        grid.addColumn(Customer::getEmail).setHeader("Email").setWidth("10em");
+        grid.addColumn(Customer::getPhoneNo).setHeader("Phone No").setWidth("10em");
+        grid.addColumn(Customer::getRemark).setHeader("Remark").setWidth("15em");
+        grid.addColumn(i -> i.getCreatedDate().format(DateTimeFormatter.ISO_DATE)).setHeader("Created").setWidth("8em");
         
         grid.addComponentColumn(customer -> {
             Div fl = new Div();

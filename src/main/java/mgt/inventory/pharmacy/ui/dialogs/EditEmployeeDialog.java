@@ -14,6 +14,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import mgt.inventory.pharmacy.entities.Employee;
+import mgt.inventory.pharmacy.entities.IdGenerator;
 
 
 public class EditEmployeeDialog extends MDialog {
@@ -42,9 +43,10 @@ public class EditEmployeeDialog extends MDialog {
         }
         
         TextField employeeId = new TextField("Employee Id");
-        employeeId.setPlaceholder("XXX-XXXXX");
+        employeeId.setValue(IdGenerator.generateId("employee"));
         binder.forField(employeeId).asRequired("Please enter a Employee Id")
                 .withValidator(new StringLengthValidator("Please add a valid Employee Id", 4, 15)).bind("employeeId");
+        employeeId.setEnabled(false);
         
         TextField fullName = new TextField("Employee Full Name");
         binder.forField(fullName).asRequired("Please enter Employee full Name").bind("fullName");

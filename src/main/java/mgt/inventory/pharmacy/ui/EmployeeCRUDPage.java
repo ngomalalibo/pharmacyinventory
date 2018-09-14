@@ -42,7 +42,7 @@ public class EmployeeCRUDPage extends FlexLayout {
         
         employeecount.getStyle().set("color", "#777777");
         
-        FlexLayout flex = new FlexLayout(new H3("Customers"), employeecount);
+        FlexLayout flex = new FlexLayout(new H3("Employees"), employeecount);
         flex.setAlignItems(Alignment.CENTER);
         flex.setJustifyContentMode(JustifyContentMode.BETWEEN);
         add(flex);
@@ -62,11 +62,11 @@ public class EmployeeCRUDPage extends FlexLayout {
             return pcode;
         }).setHeader("Employee Id");
         
-        grid.addColumn(Employee::getFullName).setHeader("Full Name");
-        grid.addColumn(Employee::getEmail).setHeader("Email");
-        grid.addColumn(Employee::getPhoneNo).setHeader("Phone No");
-        grid.addColumn(Employee::getRemark).setHeader("Remark");
-        grid.addColumn(i -> i.getCreatedDate().format(DateTimeFormatter.ISO_DATE)).setHeader("Created");
+        grid.addColumn(Employee::getFullName).setHeader("Full Name").setWidth("15em");
+        grid.addColumn(Employee::getEmail).setHeader("Email").setWidth("10em");
+        grid.addColumn(Employee::getPhoneNo).setHeader("Phone No").setWidth("10em");
+        grid.addColumn(Employee::getRemark).setHeader("Remark").setWidth("15em");
+        grid.addColumn(i -> i.getCreatedDate().format(DateTimeFormatter.ISO_DATE)).setHeader("Created").setWidth("9em");
         
         grid.addComponentColumn(employee -> {
             Div fl = new Div();

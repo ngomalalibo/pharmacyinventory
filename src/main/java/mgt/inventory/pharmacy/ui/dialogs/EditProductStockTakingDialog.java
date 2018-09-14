@@ -18,6 +18,7 @@ import com.vaadin.flow.data.validator.StringLengthValidator;
 import mgt.inventory.pharmacy.database.MongoDB;
 import mgt.inventory.pharmacy.database.MongoDB.ProductStockTaking;
 import mgt.inventory.pharmacy.entities.Employee;
+import mgt.inventory.pharmacy.entities.IdGenerator;
 import mgt.inventory.pharmacy.entities.Product;
 import mgt.inventory.pharmacy.entities.StockTaking;
 import mgt.inventory.pharmacy.ui.NumberTextField;
@@ -49,6 +50,11 @@ public class EditProductStockTakingDialog extends MDialog
                 setHeader("Inventory Product");
                 break;
         }
+    
+        TextField stockId = new TextField("Stock Id");
+        stockId.setValue(IdGenerator.generateId("stock"));
+        binder.forField(stockId).bind("stockId");
+        stockId.setEnabled(false);
         
         TextField productName = new TextField("Product Name");
         productName.setValue(psbean.product.getProductName());
@@ -76,7 +82,7 @@ public class EditProductStockTakingDialog extends MDialog
         binder.forField(discDate).bind("discontinueDate");
         
         
-        FormLayout form = new FormLayout(productName, productCat, manufacturer, manufacturer, quantityInStock, stockTakenBy, reorderLevel, discDate);
+        FormLayout form = new FormLayout(stockId, productName, productCat, manufacturer, manufacturer, quantityInStock, stockTakenBy, reorderLevel, discDate);
         form.setResponsiveSteps(new ResponsiveStep("0", 2));
         form.setWidth("500px");
         setContents(form);

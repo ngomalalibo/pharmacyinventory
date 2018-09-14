@@ -63,20 +63,20 @@ public class ProductCRUDPage extends FlexLayout {
 			pcode.setClassName("font-size-s");
 			pcode.addClickListener(clk -> openProductView(ps.product));
 			return pcode;
-		}).setHeader("Product Code");
-
-		// grid.addColumn(ps -> ps.product.getProductCode()).setHeader("Product Code");
-		grid.addColumn(ps -> ps.product.getProductName()).setHeader("Product Name");
-		grid.addColumn(ps -> ps.product.getProductCategory()).setHeader("Product Category");
-		grid.addColumn(ps -> ps.product.getProductManufacturer()).setHeader("Manufacturer");
-		grid.addColumn(ps -> ps.product.getProductManufactureReleaseDate()).setHeader("Release Date");
+		}).setHeader("Product Code").setWidth("6em");
+ 
+		grid.addColumn(ps -> ps.product.getProductName()).setHeader("Product Name").setWidth("15em");
+		grid.addColumn(ps -> ps.product.getProductCategory()).setHeader("Product Category").setWidth("10em");
+		grid.addColumn(ps -> ps.product.getProductManufacturer()).setHeader("Manufacturer").setWidth("10em");
+		grid.addColumn(ps -> ps.product.getProductManufactureReleaseDate()).setHeader("Release Date").setWidth("8em");
 		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getQuantityInStock().toString() : "")
-				.setHeader("Quanitity Available");
-		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getReorderLevel() : "").setHeader("Reorder Level");
+				.setHeader("Quanitity Available").setWidth("5em");
+		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getReorderLevel() : "").setHeader("Reorder Level").setWidth("5em");
 		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getDiscontinueDate() : "")
-				.setHeader("Discontinue Date");
-		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getStockTakenBy() : "").setHeader("Taken By");
-		grid.addColumn(ps -> ps.product.getCreatedDate().format(DateTimeFormatter.ISO_DATE)).setHeader("Created");
+				.setHeader("Discontinue Date").setWidth("9em");
+		grid.addColumn(ps -> ps.stockTaking != null ? ps.stockTaking.getStockTakenBy() : "").setHeader("Taken By").setWidth("15em");
+		//grid.addColumn(ps -> ps.stockTaking != null ? (ps.stockTaking.getStockTakenBy().getFullName()) : "").setHeader("Taken By").setWidth("15em");
+		grid.addColumn(ps -> ps.product.getCreatedDate().format(DateTimeFormatter.ISO_DATE)).setHeader("Created").setWidth("8em");
 
 		grid.addComponentColumn(ps -> {
 			Div fl = new Div();

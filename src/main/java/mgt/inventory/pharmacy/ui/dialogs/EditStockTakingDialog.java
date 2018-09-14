@@ -18,6 +18,7 @@ import com.vaadin.flow.data.validator.StringLengthValidator;
 import javafx.beans.property.Property;
 import mgt.inventory.pharmacy.database.MongoDB;
 import mgt.inventory.pharmacy.entities.Employee;
+import mgt.inventory.pharmacy.entities.IdGenerator;
 import mgt.inventory.pharmacy.entities.Product;
 import mgt.inventory.pharmacy.entities.StockTaking;
 
@@ -47,7 +48,10 @@ public class EditStockTakingDialog extends MDialog {
         }
     
         //ComboBox
-        
+        TextField stockId = new TextField("Stock Id");
+        stockId.setValue(IdGenerator.generateId("stock"));
+        binder.forField(stockId).bind("stockId");
+        stockId.setEnabled(false);
         
         ComboBox<Product> productCode = new ComboBox<>("Products", MongoDB.getProductCombo());
         //productCode.setItems(MongoDB.getProductCombo());
@@ -78,7 +82,7 @@ public class EditStockTakingDialog extends MDialog {
         DatePicker discontinueDate = new DatePicker("Discontinue Date");
         binder.forField(discontinueDate).bind("discontinueDate;");
         
-        FormLayout form = new FormLayout(productCode, quantityInStock, reorderLevel, stockTakenBy, stockTakenDate, discontinueDate);
+        FormLayout form = new FormLayout(stockId, productCode, quantityInStock, reorderLevel, stockTakenBy, stockTakenDate, discontinueDate);
         form.setResponsiveSteps(new ResponsiveStep("0", 2));
         form.setWidth("500px");
         setContents(form);

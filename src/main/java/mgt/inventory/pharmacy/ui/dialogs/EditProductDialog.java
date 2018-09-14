@@ -14,6 +14,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 
+import mgt.inventory.pharmacy.entities.IdGenerator;
 import mgt.inventory.pharmacy.entities.Product;
 
 public class EditProductDialog extends MDialog {
@@ -42,9 +43,10 @@ public class EditProductDialog extends MDialog {
 		}
 
 		TextField productCode = new TextField("Product Code");
-		productCode.setPlaceholder("XXX-XXXXX");
+		productCode.setValue(IdGenerator.generateId("product"));
 		binder.forField(productCode).asRequired("Please enter a product code")
 				.withValidator(new StringLengthValidator("Please add a valid product code", 4, 15)).bind("productCode");
+		productCode.setEnabled(false);
 		
 		TextField productName = new TextField("Product Name");
 		binder.forField(productName).asRequired("Please enter a product name").bind("productName");

@@ -200,8 +200,8 @@ public class MongoDB {
 		// stock.sort((a, b) -> a.createdDate.compareTo(b.createdDate)); // sort by date
 		// ascending
 
-		System.out.println("products.size " + products.size());
-		System.out.println("stockTaking.size " + stockTaking.size());
+		//System.out.println("products.size " + products.size());
+		//System.out.println("stockTaking.size " + stockTaking.size());
 
 		List<ProductStockTaking> productStockTaking = new ArrayList<>();
 
@@ -210,11 +210,11 @@ public class MongoDB {
 			stk.product = products.get(n);
 
 			String spcode = stk.product.getProductCode();
-			System.out.println(spcode);
+			//System.out.println(spcode);
 
 			Optional<StockTaking> opt = stockTaking.stream().filter(sc -> {
 				String prodcode = sc.getProductCode();
-				System.out.println(">> = " + prodcode);
+				//System.out.println(">> = " + prodcode);
 				return spcode.equals(prodcode);
 			}).findFirst();
 

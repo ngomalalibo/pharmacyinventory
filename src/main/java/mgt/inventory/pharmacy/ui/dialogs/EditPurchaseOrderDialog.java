@@ -17,10 +17,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
 import mgt.inventory.pharmacy.database.MongoDB;
-import mgt.inventory.pharmacy.entities.Employee;
-import mgt.inventory.pharmacy.entities.Product;
-import mgt.inventory.pharmacy.entities.PurchaseOrder;
-import mgt.inventory.pharmacy.entities.StockTaking;
+import mgt.inventory.pharmacy.entities.*;
 import mgt.inventory.pharmacy.ui.DoubleNumberTextField;
 import mgt.inventory.pharmacy.ui.NumberTextField;
 
@@ -50,8 +47,9 @@ public class EditPurchaseOrderDialog extends MDialog {
 		}
 
 		TextField purchaseId = new TextField("Purchase ID");
-		purchaseId.setPlaceholder("XXX-XXXXX");
+		purchaseId.setValue(IdGenerator.generateId("purchase"));
 		binder.forField(purchaseId).asRequired("Please enter purchase ID").bind("purchaseId");
+		purchaseId.setEnabled(false);
 
 		List<Product> allproduct = MongoDB.getProductCombo();
 		ComboBox<Product> product = new ComboBox<>("Product", allproduct);

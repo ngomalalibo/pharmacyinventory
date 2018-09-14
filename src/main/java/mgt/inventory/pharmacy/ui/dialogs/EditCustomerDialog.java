@@ -13,7 +13,9 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.StringLengthValidator;
+import com.vaadin.flow.theme.lumo.Lumo;
 import mgt.inventory.pharmacy.entities.Customer;
+import mgt.inventory.pharmacy.entities.IdGenerator;
 
 
 public class EditCustomerDialog extends MDialog {
@@ -25,6 +27,8 @@ public class EditCustomerDialog extends MDialog {
         
         Binder<Customer> binder = new Binder<>(Customer.class);
         binder.setBean(new Customer());
+        
+        String id;
         
         switch (action) {
             case NEW:
@@ -40,10 +44,13 @@ public class EditCustomerDialog extends MDialog {
                 setHeader("Customer");
                 break;
         }
-        
+        String gid = IdGenerator.generateId("customer");
         TextField customerId = new TextField("Customer Id");
-        customerId.setPlaceholder("XXX-XXXXX");
+        customerId.setValue(gid);
+        //customerId.getStyle().set("font", Lumo.LIGHT);
+        System.out.println("customer ID "+customerId.getValue());
         binder.forField(customerId).asRequired("Please enter Customer Id").bind("customerId");
+        customerId.setEnabled(false);
                 //.withValidator(new StringLengthValidator("Please add a valid customer Id", 4, 15)).bind("customerId");
     
         TextField fullName = new TextField("Customer Full Name");
