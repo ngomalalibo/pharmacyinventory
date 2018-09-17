@@ -20,7 +20,7 @@ public class Employee extends BaseEntity {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Employee) {
+		if (obj != null && obj instanceof Employee && employeeId!=null) {
 			return employeeId.equals(((Employee) obj).getEmployeeId());
 		} else
 			return false;

@@ -26,16 +26,20 @@ public class EditEmployeeDialog extends MDialog {
         
         Binder<Employee> binder = new Binder<>(Employee.class);
         binder.setBean(new Employee());
+    
+        String gid = IdGenerator.generateId("employee");
+        
         
         switch (action) {
             case NEW:
-                setHeader("New Inventory Employee");
+                setHeader("New Employee");
+                employeeBean.setEmployeeId(gid);
                 break;
             case EDIT:
-                setHeader("Edit Inventory Employee");
+                setHeader("Edit Employee");
                 break;
             case DELETE:
-                setHeader("Delete Inventory Employee?");
+                setHeader("Delete Employee?");
                 break;
             case VIEW:
                 setHeader("Inventory Employee");
@@ -43,7 +47,6 @@ public class EditEmployeeDialog extends MDialog {
         }
         
         TextField employeeId = new TextField("Employee Id");
-        employeeId.setValue(IdGenerator.generateId("employee"));
         binder.forField(employeeId).asRequired("Please enter a Employee Id")
                 .withValidator(new StringLengthValidator("Please add a valid Employee Id", 4, 15)).bind("employeeId");
         employeeId.setEnabled(false);
@@ -76,30 +79,33 @@ public class EditEmployeeDialog extends MDialog {
         binder.setReadOnly(action == DialogAction.DELETE || action == DialogAction.VIEW);
         
         if (action != DialogAction.VIEW) {
-            Button actionbtn = new Button("Save");
-            actionbtn.getElement().setAttribute("theme", "small primary");
-            actionbtn.addClickListener(e -> {
-                if (binder.validate().isOk()) {
-                    if (binder.writeBeanIfValid(employeeBean)) {
-                        onaction.action(employeeBean);
-                        close();
-                    }
-                }
-            });
             
             if (action == DialogAction.DELETE) {
                 Button deletebtn = new Button("Delete");
-                deletebtn.getElement().setAttribute("theme", "error small");
-                deletebtn.setVisible(action == DialogAction.EDIT);
-                deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Shipping Address?",
-                        "Are you sure you want to delete this address?", DialogAction.DELETE, () -> {
+                deletebtn.getElement().setAttribute("theme", "error primary small");
+               // deletebtn.setVisible(action == DialogAction.EDIT);
+                deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Employee?",
+                        "Are you sure you want to delete this employee?", DialogAction.DELETE, () -> {
                     onaction.action(employeeBean);
                     close();
                 }).open());
-                addActions(deletebtn);
+                addTerminalActions(deletebtn);
+            } else {
+                Button actionbtn = new Button("Save");
+                actionbtn.getElement().setAttribute("theme", "small primary");
+                actionbtn.addClickListener(e -> {
+                    if (binder.validate().isOk()) {
+                        if (binder.writeBeanIfValid(employeeBean)) {
+                            onaction.action(employeeBean);
+                            close();
+                        }
+                    }
+                });
+    
+                addTerminalActions(actionbtn);
             }
             
-            addTerminalActions(actionbtn);
+          
             
             setCloseOnEsc(false);
             setCloseOnOutsideClick(false);

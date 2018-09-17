@@ -5,6 +5,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
@@ -28,16 +29,19 @@ public class EditOrderDialog extends MDialog {
 
 		Binder<Order> binder = new Binder<>(Order.class);
 		binder.setBean(new Order());
+		
+		String gid = IdGenerator.generateId("order");
 
 		switch (action) {
 		case NEW:
-			setHeader("New Inventory Order");
+			setHeader("New Order");
+			orderBean.setOrderId(gid);
 			break;
 		case EDIT:
-			setHeader("Edit Inventory Order");
+			setHeader("Edit Order");
 			break;
 		case DELETE:
-			setHeader("Delete Inventory Order?");
+			setHeader("Delete Order?");
 			break;
 		case VIEW:
 			setHeader("Inventory Order");
@@ -45,7 +49,6 @@ public class EditOrderDialog extends MDialog {
 		}
 
 		TextField orderId = new TextField("Order Id");
-		orderId.setValue(IdGenerator.generateId("order"));
 		binder.forField(orderId).asRequired("Please enter a Order Id")
 				.withValidator(new StringLengthValidator("Please add a valid order Id", 4, 15)).bind("orderId");
 		orderId.setEnabled(false);
@@ -111,36 +114,40 @@ public class EditOrderDialog extends MDialog {
 		binder.setReadOnly(action == DialogAction.DELETE || action == DialogAction.VIEW);
 
 		if (action != DialogAction.VIEW) {
-			Button actionbtn = new Button("Save");
-			actionbtn.getElement().setAttribute("theme", "small primary");
-			actionbtn.addClickListener(e -> {
-				if (binder.validate().isOk()) {
-					if (binder.writeBeanIfValid(orderBean)) {
-						if (checkAvailQuantity(orderBean.getProductCode(), orderBean.getQuantity())) {
-							updateStockQuantity(orderBean.getProductCode(), orderBean.getQuantity());
-							// SendSMS.sendSms("+18509295655", "+2348098423619", "Thank you for your
-							// Patronage. We look forward to seeing you again. Have a great day");
-						}
-						onaction.action(orderBean);
-						close();
-					}
-				}
-			});
-
 			if (action == DialogAction.DELETE) {
 				Button deletebtn = new Button("Delete");
-				deletebtn.getElement().setAttribute("theme", "error small");
-				deletebtn.setVisible(action == DialogAction.EDIT);
-				deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Shipping Address?",
-						"Are you sure you want to delete this address?", DialogAction.DELETE, () -> {
-							onaction.action(orderBean);
-							close();
-						}).open());
-				addActions(deletebtn);
+				deletebtn.getElement().setAttribute("theme", "error primary small");
+				deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Order?",
+						"Are you sure you want to delete this order?", DialogAction.DELETE, () -> {
+					onaction.action(orderBean);
+					close();
+				}).open());
+				addTerminalActions(deletebtn);
 			}
-
-			addTerminalActions(actionbtn);
-
+			else {
+				Button actionbtn = new Button("Save");
+				actionbtn.getElement().setAttribute("theme", "small primary");
+				actionbtn.addClickListener(e -> {
+					if (binder.validate().isOk()) {
+						if (binder.writeBeanIfValid(orderBean)) {
+							if (checkAvailQuantity(orderBean.getProductCode(), orderBean.getQuantity())) {
+								updateStockQuantity(orderBean.getProductCode(), orderBean.getQuantity());
+								String message = SendSMS.sendSms("+2348098423619", "+18509295655", "Thank you for your Patronage.");
+								new Notification("Order has been placed. SMS has been sent to the customer.", 4000, Notification.Position.MIDDLE).open();
+								onaction.action(orderBean);
+								close();
+							}
+							else {
+								new Notification("Insufficient Quantity in stock", 4000).open();
+							}
+							
+							
+						}
+					}
+				});
+				addTerminalActions(actionbtn);
+			}
+			
 			setCloseOnEsc(false);
 			setCloseOnOutsideClick(false);
 		}
@@ -149,8 +156,14 @@ public class EditOrderDialog extends MDialog {
 	private void updateStockQuantity(String productCode, Integer orderQuantity) {
 		StockTaking st = MongoDB.getLatestStockTaken(productCode);
 		Integer updateQuantity = st.getQuantityInStock() - orderQuantity;
+		
+		System.out.println("updatedQuantity: "+updateQuantity);
 
-		MongoDB.updateQuantityStock(st.getId(), updateQuantity);
+		MongoDB.updateQuantityStock(st.getStockId(), updateQuantity);
+		
+		st.setQuantityInStock(updateQuantity);
+		
+		st.persist(st);
 
 	}
 

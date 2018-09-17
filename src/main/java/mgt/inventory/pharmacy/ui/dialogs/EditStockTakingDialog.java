@@ -31,10 +31,13 @@ public class EditStockTakingDialog extends MDialog {
         
         Binder<StockTaking> binder = new Binder<>(StockTaking.class);
         binder.setBean(new StockTaking());
+    
+        String gid = IdGenerator.generateId("stock");
         
         switch (action) {
             case NEW:
                 setHeader("New Stock Record");
+                stockTakingBean.setStockId(gid);
                 break;
             case EDIT:
                 setHeader("Edit Stock Record");
@@ -49,7 +52,6 @@ public class EditStockTakingDialog extends MDialog {
     
         //ComboBox
         TextField stockId = new TextField("Stock Id");
-        stockId.setValue(IdGenerator.generateId("stock"));
         binder.forField(stockId).bind("stockId");
         stockId.setEnabled(false);
         
@@ -93,30 +95,30 @@ public class EditStockTakingDialog extends MDialog {
         binder.setReadOnly(action == DialogAction.DELETE || action == DialogAction.VIEW);
         
         if (action != DialogAction.VIEW) {
-            Button actionbtn = new Button("Save");
-            actionbtn.getElement().setAttribute("theme", "small primary");
-            actionbtn.addClickListener(e -> {
-                if (binder.validate().isOk()) {
-                    if (binder.writeBeanIfValid(stockTakingBean)) {
-                        onaction.action(stockTakingBean);
-                        close();
-                    }
-                }
-            });
-            
+    
             if (action == DialogAction.DELETE) {
                 Button deletebtn = new Button("Delete");
-                deletebtn.getElement().setAttribute("theme", "error small");
-                deletebtn.setVisible(action == DialogAction.EDIT);
-                deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Shipping Address?",
-                        "Are you sure you want to delete this address?", DialogAction.DELETE, () -> {
+                deletebtn.getElement().setAttribute("theme", "error primary small");
+                deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Stock?",
+                        "Are you sure you want to delete this stock?", DialogAction.DELETE, () -> {
                     onaction.action(stockTakingBean);
                     close();
                 }).open());
-                addActions(deletebtn);
+                addTerminalActions(deletebtn);
             }
-            
-            addTerminalActions(actionbtn);
+            else {
+                Button actionbtn = new Button("Save");
+                actionbtn.getElement().setAttribute("theme", "small primary");
+                actionbtn.addClickListener(e -> {
+                    if (binder.validate().isOk()) {
+                        if (binder.writeBeanIfValid(stockTakingBean)) {
+                            onaction.action(stockTakingBean);
+                            close();
+                        }
+                    }
+                });
+                addTerminalActions(actionbtn);
+            }
             
             setCloseOnEsc(false);
             setCloseOnOutsideClick(false);

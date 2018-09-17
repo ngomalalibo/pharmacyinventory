@@ -30,10 +30,13 @@ public class EditPurchaseOrderDialog extends MDialog {
 
 		Binder<PurchaseOrder> binder = new Binder<>(PurchaseOrder.class);
 		binder.setBean(new PurchaseOrder());
+		
+		String gid = IdGenerator.generateId("purchase");
 
 		switch (action) {
 		case NEW:
 			setHeader("New Purchase Order");
+			purchaseBean.setPurchaseId(gid);
 			break;
 		case EDIT:
 			setHeader("Edit Purchase Order");
@@ -47,7 +50,6 @@ public class EditPurchaseOrderDialog extends MDialog {
 		}
 
 		TextField purchaseId = new TextField("Purchase ID");
-		purchaseId.setValue(IdGenerator.generateId("purchase"));
 		binder.forField(purchaseId).asRequired("Please enter purchase ID").bind("purchaseId");
 		purchaseId.setEnabled(false);
 
@@ -106,59 +108,59 @@ public class EditPurchaseOrderDialog extends MDialog {
 		binder.setReadOnly(action == DialogAction.DELETE || action == DialogAction.VIEW);
 
 		if (action != DialogAction.VIEW) {
-			Button actionbtn = new Button("Save");
-			actionbtn.getElement().setAttribute("theme", "small primary");
-			actionbtn.addClickListener(e -> {
-
-				if (binder.validate().isOk()) {
-					if (binder.writeBeanIfValid(purchaseBean)) {
-						String productCode = binder.getBean().getProductCode();
-						StockTaking st = MongoDB.getLatestStockTaken(productCode);
-						if (st == null) {
-							new Notification("No Current Stock found for Product " + productCode, 2000, Position.MIDDLE)
-									.open();
-							StockTaking stocktaken = new StockTaking();
-							stocktaken.setProductCode(productCode);
-							stocktaken.setQuantityInStock(purchaseBean.getQuantity());
-							stocktaken.setStockTakenBy(purchaseBean.getPurchaseBy());
-							stocktaken.setStockTakenDate(LocalDate.now());
-							stocktaken.persist(stocktaken);
-						} else {
-							System.out.println("st -> " + st.toString());
-							st.setQuantityInStock(purchaseBean.getQuantity() + st.getQuantityInStock());
-							// addStockQuantity(purchaseBean.getProductCode(), purchaseBean.getQuantity());
-							System.out.println("Purchase Order Recorded");
-
-							st.persist(st);
-						}
-						purchaseBean.persist(purchaseBean);
-						onaction.action();
-						close();
-					} else {
-						new Notification("Bean NOT Valid", 2000).open();
-					}
-				} else {
-					System.out.println("-> " + binder.validate().getBeanValidationErrors().stream()
-							.map(ve -> ve.getErrorMessage()).collect(Collectors.joining(",")));
-					System.out.println("-> " + binder.getBean().toString());
-				}
-			});
-
 			if (action == DialogAction.DELETE) {
 				Button deletebtn = new Button("Delete");
-				deletebtn.getElement().setAttribute("theme", "error small");
-				deletebtn.setVisible(action == DialogAction.EDIT);
-				deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Shipping Address?",
-						"Are you sure you want to delete this address?", DialogAction.DELETE, () -> {
-							purchaseBean.delete(purchaseBean);
+				deletebtn.getElement().setAttribute("theme", "error primary small");
+				deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Purchase Order?",
+						"Are you sure you want to delete this purchase Order?", DialogAction.DELETE, () -> {
+					purchaseBean.delete(purchaseBean);
+					onaction.action();
+					close();
+				}).open());
+				addTerminalActions(deletebtn);
+			}
+			else
+			{
+				Button actionbtn = new Button("Save");
+				actionbtn.getElement().setAttribute("theme", "small primary");
+				actionbtn.addClickListener(e -> {
+					
+					if (binder.validate().isOk()) {
+						if (binder.writeBeanIfValid(purchaseBean)) {
+							String productCode = binder.getBean().getProductCode();
+							StockTaking st = MongoDB.getLatestStockTaken(productCode);
+							if (st == null) {
+								new Notification("No Current Stock found for Product " + productCode, 2000, Position.MIDDLE)
+										.open();
+								StockTaking stocktaken = new StockTaking();
+								stocktaken.setProductCode(productCode);
+								stocktaken.setQuantityInStock(purchaseBean.getQuantity());
+								stocktaken.setStockTakenBy(purchaseBean.getPurchaseBy());
+								stocktaken.setStockTakenDate(LocalDate.now());
+								stocktaken.persist(stocktaken);
+							} else {
+								System.out.println("st -> " + st.toString());
+								st.setQuantityInStock(purchaseBean.getQuantity() + st.getQuantityInStock());
+								// addStockQuantity(purchaseBean.getProductCode(), purchaseBean.getQuantity());
+								System.out.println("Purchase Order Recorded");
+								
+								st.persist(st);
+							}
+							purchaseBean.persist(purchaseBean);
 							onaction.action();
 							close();
-						}).open());
-				addActions(deletebtn);
+						} else {
+							new Notification("Bean NOT Valid", 2000).open();
+						}
+					} else {
+						System.out.println("-> " + binder.validate().getBeanValidationErrors().stream()
+								.map(ve -> ve.getErrorMessage()).collect(Collectors.joining(",")));
+						System.out.println("-> " + binder.getBean().toString());
+					}
+				});
+				addTerminalActions(actionbtn);
 			}
-
-			addTerminalActions(actionbtn);
-
+			
 			setCloseOnEsc(false);
 			setCloseOnOutsideClick(false);
 		}

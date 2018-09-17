@@ -26,16 +26,19 @@ public class EditProductDialog extends MDialog {
 
 		Binder<Product> binder = new Binder<>(Product.class);
 		binder.setBean(new Product());
+		
+		String gid = IdGenerator.generateId("product");
 
 		switch (action) {
 		case NEW:
-			setHeader("New Inventory Product");
+			setHeader("New Product");
+			productbean.setProductCode(gid);
 			break;
 		case EDIT:
-			setHeader("Edit Inventory Product");
+			setHeader("Edit Product");
 			break;
 		case DELETE:
-			setHeader("Delete Inventory Product?");
+			setHeader("Delete Product?");
 			break;
 		case VIEW:
 			setHeader("Inventory Product");
@@ -43,7 +46,6 @@ public class EditProductDialog extends MDialog {
 		}
 
 		TextField productCode = new TextField("Product Code");
-		productCode.setValue(IdGenerator.generateId("product"));
 		binder.forField(productCode).asRequired("Please enter a product code")
 				.withValidator(new StringLengthValidator("Please add a valid product code", 4, 15)).bind("productCode");
 		productCode.setEnabled(false);
@@ -84,30 +86,36 @@ public class EditProductDialog extends MDialog {
 		binder.setReadOnly(action == DialogAction.DELETE || action == DialogAction.VIEW);
 
 		if (action != DialogAction.VIEW) {
-			Button actionbtn = new Button("Save");
-			actionbtn.getElement().setAttribute("theme", "small primary");
-			actionbtn.addClickListener(e -> {
-				if (binder.validate().isOk()) {
-					if (binder.writeBeanIfValid(productbean)) {
-						onaction.action(productbean);
-						close();
-					}
-				}
-			});
-
+			
 			if (action == DialogAction.DELETE) {
 				Button deletebtn = new Button("Delete");
-				deletebtn.getElement().setAttribute("theme", "error small");
-				deletebtn.setVisible(action == DialogAction.EDIT);
-				deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Shipping Address?",
-						"Are you sure you want to delete this address?", DialogAction.DELETE, () -> {
+				deletebtn.getElement().setAttribute("theme", "error primary small");
+				deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Product?",
+						"Are you sure you want to delete this product?", DialogAction.DELETE, () -> {
+					onaction.action(productbean);
+					close();
+				}).open());
+				addTerminalActions(deletebtn);
+			}
+			else
+			{
+				Button actionbtn = new Button("Save");
+				actionbtn.getElement().setAttribute("theme", "small primary");
+				actionbtn.addClickListener(e -> {
+					if (binder.validate().isOk()) {
+						if (binder.writeBeanIfValid(productbean)) {
 							onaction.action(productbean);
 							close();
-						}).open());
-				addActions(deletebtn);
+						}
+					}
+				});
+				addTerminalActions(actionbtn);
 			}
+			
+			
+			
 
-			addTerminalActions(actionbtn);
+			
 
 			setCloseOnEsc(false);
 			setCloseOnOutsideClick(false);

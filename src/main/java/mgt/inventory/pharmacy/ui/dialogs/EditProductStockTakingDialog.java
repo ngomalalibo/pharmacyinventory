@@ -2,6 +2,7 @@ package mgt.inventory.pharmacy.ui.dialogs;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import com.vaadin.flow.component.button.Button;
@@ -34,25 +35,28 @@ public class EditProductStockTakingDialog extends MDialog
         
         Binder<StockTaking> binder = new Binder<>(StockTaking.class);
         binder.setBean(new StockTaking());
+    
+        String gid = IdGenerator.generateId("stock");
         
         switch (action)
         {
             case NEW:
                 setHeader("New Inventory Product");
+                psbean.stockTaking.setStockId(gid);
+                
                 break;
             case EDIT:
-                setHeader("Edit Inventory Product");
+                setHeader("Edit Product Stock");
                 break;
             case DELETE:
-                setHeader("Delete Inventory Product?");
+                setHeader("Delete Product Stock?");
                 break;
             case VIEW:
-                setHeader("Inventory Product");
+                setHeader("Product Stock");
                 break;
         }
     
         TextField stockId = new TextField("Stock Id");
-        stockId.setValue(IdGenerator.generateId("stock"));
         binder.forField(stockId).bind("stockId");
         stockId.setEnabled(false);
         
@@ -71,9 +75,11 @@ public class EditProductStockTakingDialog extends MDialog
         NumberTextField quantityInStock = new NumberTextField("QuantityInStock");
         binder.forField(quantityInStock).asRequired("Please quantity").bind("quantityInStock");
         
-        ComboBox<Employee> stockTakenBy = new ComboBox<>("Stock Taken By", MongoDB.getEmployeeCombo());
+        List<Employee> allemployees =  MongoDB.getEmployeeCombo();
+        ComboBox<Employee> stockTakenBy = new ComboBox<>("Stock Taken By" ,allemployees);
         stockTakenBy.setItemLabelGenerator(emp -> emp.getFullName());
-        binder.forField(stockTakenBy).asRequired("Please select stock takers Info").bind("stockTakenBy");
+        binder.forField(stockTakenBy).asRequired("Please select stock takers Info")
+              .bind("stockTakenBy");
     
         NumberTextField reorderLevel = new NumberTextField("Reorder Level");
         binder.forField(reorderLevel).asRequired("Enter reorder Level").bind("reorderLevel");
@@ -99,37 +105,37 @@ public class EditProductStockTakingDialog extends MDialog
         
         if (action != DialogAction.VIEW)
         {
-            Button actionbtn = new Button("Save");
-            actionbtn.getElement().setAttribute("theme", "small primary");
-            actionbtn.addClickListener(e ->
-            {
-                if (binder.validate().isOk())
-                {
-                    if (binder.writeBeanIfValid(psbean.stockTaking))
-                    {
-                        psbean.stockTaking.setProductCode(psbean.product.getProductCode());
-                        psbean.stockTaking.setStockTakenDate(LocalDate.now());
-                        onaction.action(psbean.stockTaking);
-                        close();
-                    }
-                }
-            });
-            
             if (action == DialogAction.DELETE)
             {
                 Button deletebtn = new Button("Delete");
-                deletebtn.getElement().setAttribute("theme", "error small");
-                deletebtn.setVisible(action == DialogAction.EDIT);
-                deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Shipping Address?",
-                        "Are you sure you want to delete this address?", DialogAction.DELETE, () ->
+                deletebtn.getElement().setAttribute("theme", "error primary small");
+                deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Stock Taken?",
+                        "Are you sure you want to delete this stock Taken?", DialogAction.DELETE, () ->
                 {
                     onaction.action(psbean.stockTaking);
                     close();
                 }).open());
-                addActions(deletebtn);
+                addTerminalActions(deletebtn);
             }
-            
-            addTerminalActions(actionbtn);
+            else
+            {
+                Button actionbtn = new Button("Save");
+                actionbtn.getElement().setAttribute("theme", "small primary");
+                actionbtn.addClickListener(e ->
+                {
+                    if (binder.validate().isOk())
+                    {
+                        if (binder.writeBeanIfValid(psbean.stockTaking))
+                        {
+                            psbean.stockTaking.setProductCode(psbean.product.getProductCode());
+                            psbean.stockTaking.setStockTakenDate(LocalDate.now());
+                            onaction.action(psbean.stockTaking);
+                            close();
+                        }
+                    }
+                });
+                addTerminalActions(actionbtn);
+            }
             
             setCloseOnEsc(false);
             setCloseOnOutsideClick(false);

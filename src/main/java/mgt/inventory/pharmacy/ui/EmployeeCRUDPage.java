@@ -10,6 +10,7 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.IronIcon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -27,7 +28,7 @@ public class EmployeeCRUDPage extends FlexLayout {
     
     private static final long serialVersionUID = 1L;
     
-    private H4 employeecount = new H4();
+    private Span employeecount = new Span();
     
     private final List<Employee> allEmployees = new ArrayList<>();
     
@@ -41,16 +42,17 @@ public class EmployeeCRUDPage extends FlexLayout {
                 .set("flexDirection", "column");
         
         employeecount.getStyle().set("color", "#777777");
+    
+        Button createEmployee = new Button("Add New Employee");
+        createEmployee.getElement().setAttribute("theme", "small primary");
+        createEmployee.addClickListener(click -> newEmployeeView());
         
-        FlexLayout flex = new FlexLayout(new H3("Employees"), employeecount);
+        FlexLayout flex = new FlexLayout(new H3("Employees"), createEmployee);
         flex.setAlignItems(Alignment.CENTER);
         flex.setJustifyContentMode(JustifyContentMode.BETWEEN);
         add(flex);
         
-        Button createEmployee = new Button("Add New Employee");
-        createEmployee.getElement().setAttribute("theme", "small primary");
-        createEmployee.addClickListener(click -> newEmployeeView());
-        add(new Div(createEmployee));
+        
         
         grid.setDataProvider(new ListDataProvider<>(allEmployees));
         grid.setSelectionMode(SelectionMode.NONE);
@@ -60,7 +62,7 @@ public class EmployeeCRUDPage extends FlexLayout {
             pcode.setClassName("font-size-s");
             pcode.addClickListener(clk -> openCustomerView(employee));
             return pcode;
-        }).setHeader("Employee Id");
+        }).setHeader("Employee Id").setFooter(employeecount);
         
         grid.addColumn(Employee::getFullName).setHeader("Full Name").setWidth("15em");
         grid.addColumn(Employee::getEmail).setHeader("Email").setWidth("10em");
@@ -122,7 +124,7 @@ public class EmployeeCRUDPage extends FlexLayout {
     }
     
     private void updateEmployeeCount(int count) {
-        employeecount.setText(String.format("Total Employees: %d", count));
+        employeecount.setText(String.format("Total: %d", count));
     }
     
 }

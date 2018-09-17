@@ -10,6 +10,7 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.IronIcon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -27,7 +28,7 @@ public class CustomerCRUDPage extends FlexLayout {
     
     private static final long serialVersionUID = 1L;
     
-    private H4 customersCount = new H4();
+    private Span customersCount = new Span();
     
     private final List<Customer> allCustomers = new ArrayList<>();
     
@@ -41,16 +42,17 @@ public class CustomerCRUDPage extends FlexLayout {
                 .set("flexDirection", "column");
     
         customersCount.getStyle().set("color", "#777777");
+    
+        Button createCustomer = new Button("Add New Customer");
+        createCustomer.getElement().setAttribute("theme", "small primary");
+        createCustomer.addClickListener(click -> newCustomerView());
         
-        FlexLayout flex = new FlexLayout(new H3("Customers"), customersCount);
+        FlexLayout flex = new FlexLayout(new H3("Customers"), createCustomer);
         flex.setAlignItems(Alignment.CENTER);
         flex.setJustifyContentMode(JustifyContentMode.BETWEEN);
         add(flex);
         
-        Button createCustomer = new Button("Add New Customer");
-        createCustomer.getElement().setAttribute("theme", "small primary");
-        createCustomer.addClickListener(click -> newCustomerView());
-        add(new Div(createCustomer));
+        
         
         grid.setDataProvider(new ListDataProvider<>(allCustomers));
         grid.setSelectionMode(SelectionMode.NONE);
@@ -60,7 +62,7 @@ public class CustomerCRUDPage extends FlexLayout {
             pcode.setClassName("font-size-s");
             pcode.addClickListener(clk -> openCustomerView(customer));
             return pcode;
-        }).setHeader("Customer Id").setWidth("5em");
+        }).setHeader("Customer Id").setWidth("5em").setFooter(customersCount);
         
         grid.addColumn(Customer::getFullName).setHeader("Full Name").setWidth("10em");
         grid.addColumn(Customer::getEmail).setHeader("Email").setWidth("10em");
@@ -122,7 +124,7 @@ public class CustomerCRUDPage extends FlexLayout {
     }
     
     private void updateCustomerCount(int count) {
-        customersCount.setText(String.format("Total Customers: %d", count));
+        customersCount.setText(String.format("Total: %d", count));
     }
     
 }

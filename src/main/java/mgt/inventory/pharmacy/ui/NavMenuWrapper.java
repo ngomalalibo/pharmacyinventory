@@ -17,7 +17,10 @@ public class NavMenuWrapper extends FlexLayout implements RouterLayout {
 	private String backgndcol = "rgb(60, 60, 60)";
 
 	public NavMenuWrapper() {
-		getStyle().set("flexDirection", "row").set("flex-grow", "1").set("paddingTop", "2em").set("paddingBottom",
+		
+		getStyle().set("flexDirection", "column").set("flex-grow", "1");
+
+		/*getStyle().set("flexDirection", "row").set("flex-grow", "1").set("paddingTop", "2em").set("paddingBottom",
 				"2em");
 		getElement().setAttribute("theme", "light");
 
@@ -36,7 +39,7 @@ public class NavMenuWrapper extends FlexLayout implements RouterLayout {
 				new StyledRouteLink(orders), new StyledRouteLink(purchases), new StyledRouteLink(employees));
 		menudiv.setWidth("200px");
 		// menudiv.getStyle().set("background-color", backgndcol);
-		add(menudiv);
+		add(menudiv);*/
 	}
 
 	public class StyledRouteLink extends Div {

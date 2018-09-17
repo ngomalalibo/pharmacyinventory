@@ -148,25 +148,26 @@ public class MongoDB {
 		return getDS().createQuery(StockTaking.class).filter("productCode", productCode).get();
 	}
 
-	public static void updateQuantityStock(ObjectId stockId, Integer updateQuantity) {
+	public static void updateQuantityStock(String stockId, Integer updateQuantity) {
 		// update stockTaking set quantity = updateQuantity where
 		// productCode=productCode and max(createdDate)
 		Map<String, Object> map = new HashMap<>();
-
+		
 		map.put("$eq", stockId);
+		//map.put("upsert", true);
 		// map.put("cno", 1);
 
-		Bson query = new Document("Id", new Document(map));
+		Bson query = new Document("stockId", new Document(map));
 
 		Bson update = new Document("$set", new Document("quantity", updateQuantity));
 
 		System.out.println("before update");
-		findAndPrint(getDb().getCollection("stockTaking"));
+		//findAndPrint(getDb().getCollection("stocks"));
 
-		getDb().getCollection("stockTaking").findOneAndUpdate(query, update);
-
+		getDb().getCollection("stocks").findOneAndUpdate(query, update);
+		
 		System.out.println("after update of quantity");
-		findAndPrint(getDb().getCollection("stockTaking"));
+		//findAndPrint(getDb().getCollection("stocks"));
 	}
 
 	public static void addNewStock(String productCode, Integer quantity) {
@@ -179,7 +180,7 @@ public class MongoDB {
 		Bson query = new Document("productCode", new Document(map));
 		Bson update = new Document("$inc", new Document("quantity", quantity));
 
-		getDb().getCollection("purchaseOrder").findOneAndUpdate(query, update);
+		getDb().getCollection("purchases").findOneAndUpdate(query, update);
 	}
 
 	private static void findAndPrint(MongoCollection<Document> coll) {

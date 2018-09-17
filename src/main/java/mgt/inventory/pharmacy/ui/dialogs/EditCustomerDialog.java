@@ -29,10 +29,12 @@ public class EditCustomerDialog extends MDialog {
         binder.setBean(new Customer());
         
         String id;
+        String gid = IdGenerator.generateId("customer");
         
         switch (action) {
             case NEW:
                 setHeader("New Customer");
+                customerBean.setCustomerId(gid);
                 break;
             case EDIT:
                 setHeader("Edit Customer");
@@ -44,11 +46,8 @@ public class EditCustomerDialog extends MDialog {
                 setHeader("Customer");
                 break;
         }
-        String gid = IdGenerator.generateId("customer");
+        
         TextField customerId = new TextField("Customer Id");
-        customerId.setValue(gid);
-        //customerId.getStyle().set("font", Lumo.LIGHT);
-        System.out.println("customer ID "+customerId.getValue());
         binder.forField(customerId).asRequired("Please enter Customer Id").bind("customerId");
         customerId.setEnabled(false);
                 //.withValidator(new StringLengthValidator("Please add a valid customer Id", 4, 15)).bind("customerId");
@@ -79,30 +78,33 @@ public class EditCustomerDialog extends MDialog {
         binder.setReadOnly(action == DialogAction.DELETE || action == DialogAction.VIEW);
         
         if (action != DialogAction.VIEW) {
-            Button actionbtn = new Button("Save");
-            actionbtn.getElement().setAttribute("theme", "small primary");
-            actionbtn.addClickListener(e -> {
-                if (binder.validate().isOk()) {
-                    if (binder.writeBeanIfValid(customerBean)) {
-                        onaction.action(customerBean);
-                        close();
-                    }
-                }
-            });
-            
-            if (action == DialogAction.DELETE) {
+            if(action== DialogAction.DELETE)
+            {
                 Button deletebtn = new Button("Delete");
-                deletebtn.getElement().setAttribute("theme", "error small");
-                deletebtn.setVisible(action == DialogAction.EDIT);
-                deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Shipping Address?",
-                        "Are you sure you want to delete this address?", DialogAction.DELETE, () -> {
+                deletebtn.getElement().setAttribute("theme", "error primary small");
+                deletebtn.addClickListener(e -> new ActionConfirmDialog("Delete Customer?",
+                        "Are you sure you want to delete this customer?", DialogAction.DELETE, () -> {
                     onaction.action(customerBean);
                     close();
                 }).open());
-                addActions(deletebtn);
+                addTerminalActions(deletebtn);
+            }
+            else
+            {
+                Button actionbtn = new Button("Save");
+                actionbtn.getElement().setAttribute("theme", "small primary");
+                actionbtn.addClickListener(e -> {
+                    if (binder.validate().isOk()) {
+                        if (binder.writeBeanIfValid(customerBean)) {
+                            onaction.action(customerBean);
+                            close();
+                        }
+                    }
+                });
+                addTerminalActions(actionbtn);
             }
             
-            addTerminalActions(actionbtn);
+            
             
             setCloseOnEsc(false);
             setCloseOnOutsideClick(false);

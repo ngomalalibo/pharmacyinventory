@@ -39,19 +39,19 @@ public class PurchaseOrderCRUDPage extends FlexLayout {
         getStyle()//
                 .set("padding", "1em")//
                 .set("flex-grow", "1")//
+                .set("font-size-s", "10")
                 .set("flexDirection", "column");
         
         orderCount.getStyle().set("color", "#777777");
-        
-        FlexLayout flex = new FlexLayout(new H3("Purchase Orders"), orderCount);
-        flex.setAlignItems(Alignment.CENTER);
-        flex.setJustifyContentMode(JustifyContentMode.BETWEEN);
-        add(flex);
-        
+    
         Button createOrder = new Button("Add New Purchase Order");
         createOrder.getElement().setAttribute("theme", "small primary");
         createOrder.addClickListener(click -> newOrderView());
-        add(new Div(createOrder));
+        
+        FlexLayout flex = new FlexLayout(new H3("Purchase Orders"), createOrder);
+        flex.setAlignItems(Alignment.CENTER);
+        flex.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        add(flex);
         
         grid.setDataProvider(new ListDataProvider<>(allOrders));
         grid.setSelectionMode(SelectionMode.NONE);
@@ -61,14 +61,14 @@ public class PurchaseOrderCRUDPage extends FlexLayout {
             pcode.setClassName("font-size-s");
             pcode.addClickListener(clk -> openOrderView(order));
             return pcode;
-        }).setHeader("Product Code");
+        }).setHeader("Product Code").setFooter(orderCount);
         
         grid.addColumn(po -> po.getPurchaseBy().getFullName()).setHeader("Purchase Order Id");
         grid.addColumn(PurchaseOrder::getProductCode).setHeader("Product");
         grid.addColumn(PurchaseOrder::getQuantity).setHeader("Quantity in Stock");
         grid.addColumn(PurchaseOrder::getPurchaseDate).setHeader("Purchase Date");
         grid.addColumn(PurchaseOrder::getSupplierId).setHeader("Supplier Id");
-        grid.addColumn(PurchaseOrder::getUnitPrice).setHeader("Unit Price");
+        grid.addColumn(PurchaseOrder::getUnitPrice).setHeader("Unit Price(₦)");
         
         grid.addColumn(i -> i.getCreatedDate().format(DateTimeFormatter.ISO_DATE)).setHeader("Created");
         
@@ -126,7 +126,7 @@ public class PurchaseOrderCRUDPage extends FlexLayout {
     }
     
     private void updateOrderCount(int count) {
-        orderCount.setText(String.format("Total Purchase Orders: %d", count));
+        orderCount.setText(String.format("Total: %d", count));
     }
     
 }

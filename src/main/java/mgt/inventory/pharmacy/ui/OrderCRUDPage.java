@@ -4,12 +4,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mongodb.Mongo;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.IronIcon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -27,7 +29,7 @@ public class OrderCRUDPage extends FlexLayout {
     
     private static final long serialVersionUID = 1L;
     
-    private H4 orderCount = new H4();
+    private Span orderCount = new Span();
     
     private final List<Order> allOrders = new ArrayList<>();
     
@@ -41,16 +43,15 @@ public class OrderCRUDPage extends FlexLayout {
                 .set("flexDirection", "column");
         
         orderCount.getStyle().set("color", "#777777");
-        
-        FlexLayout flex = new FlexLayout(new H3("Orders"), orderCount);
-        flex.setAlignItems(Alignment.CENTER);
-        flex.setJustifyContentMode(JustifyContentMode.BETWEEN);
-        add(flex);
-        
+    
         Button createOrder = new Button("Add New Order");
         createOrder.getElement().setAttribute("theme", "small primary");
         createOrder.addClickListener(click -> newOrderView());
-        add(new Div(createOrder));
+        
+        FlexLayout flex = new FlexLayout(new H3("Orders"), createOrder);
+        flex.setAlignItems(Alignment.CENTER);
+        flex.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        add(flex);
         
         grid.setDataProvider(new ListDataProvider<>(allOrders));
         grid.setSelectionMode(SelectionMode.NONE);
@@ -60,14 +61,14 @@ public class OrderCRUDPage extends FlexLayout {
             pcode.setClassName("font-size-s");
             pcode.addClickListener(clk -> openOrderView(order));
             return pcode;
-        }).setHeader("Product Code");
+        }).setHeader("Product Code").setFooter(orderCount);
         
         grid.addColumn(Order::getOrderId).setHeader("Order Id");
         grid.addColumn(Order::getProductCode).setHeader("Product");
         grid.addColumn(Order::getQuantity).setHeader("Quantity");
         grid.addColumn(Order::getCustomerId).setHeader("Customer Id");
         grid.addColumn(Order::getUnitSellingPrice).setHeader("Unit Selling Price");
-        grid.addColumn(Order::getReceiptNo).setHeader("Receipt No");
+        //grid.addColumn(Order::getReceiptNo).setHeader("Receipt No");
         
         grid.addColumn(i -> i.getCreatedDate().format(DateTimeFormatter.ISO_DATE)).setHeader("Created");
         
@@ -125,7 +126,7 @@ public class OrderCRUDPage extends FlexLayout {
     }
     
     private void updateOrderCount(int count) {
-        orderCount.setText(String.format("Total Orders: %d", count));
+        orderCount.setText(String.format("Total: %d", count));
     }
     
 }

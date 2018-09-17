@@ -11,7 +11,6 @@ public class IdGenerator
     {
         Random random = new Random();
         String  uuid = String.valueOf(LocalDate.now().getMonthValue()+""+random.nextInt(10000));
-        System.out.println("uuid: "+uuid);
         switch (entity)
         {
             case "product": prefix="PR"; break;
@@ -22,7 +21,6 @@ public class IdGenerator
             case "stock": prefix="ST"; break;
             default:prefix=""; break;
         }
-        System.out.println("UUID generated: "+  prefix+uuid );
         return prefix+uuid;
     }
     
